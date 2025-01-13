@@ -53,10 +53,8 @@ const createSession = () => {
             user2: authTokenUser2,
         },
         keys: {
-            user1: {
-                privateKey: sessionData.keys.user1.privateKey,
-                publicKeyRecipient: sessionData.keys.user2.publicKey,
-            },
+            privateKey: sessionData.keys.user1.privateKey,
+            publicKeyRecipient: sessionData.keys.user2.publicKey,
         },
     };
 };
