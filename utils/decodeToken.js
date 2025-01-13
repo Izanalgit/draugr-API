@@ -3,7 +3,7 @@ function decodeToken(token) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         return decoded; 
     } catch (err) {
-        throw new Error('Token decoded failed: ', err.message);
+        throw new Error(`Token decoded failed ${err.message}`);
     }
 }
 
