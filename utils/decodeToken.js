@@ -1,9 +1,11 @@
+const {tokenSecret} = require('../config/tokens');
+
 function decodeToken(token) {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, tokenSecret);
         return decoded; 
     } catch (err) {
-        throw new Error(`Token decoded failed ${err.message}`);
+        throw new Error(`Token decoded failed`);
     }
 }
 
