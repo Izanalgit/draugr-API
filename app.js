@@ -1,12 +1,12 @@
 const express = require('express');
 const http = require('http');
-// const WebSocket = require('ws');
+const WebSocket = require('ws');
 const morgan = require('morgan');
-// const cors = require('cors');
+const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 
-// const {handleSocketConnection} = require('./websockets/handlers');
+const {handleSocketConnection} = require('./websockets/handlers');
 
 require('dotenv').config();
 
@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || 'http://localhost';
 
 //SECURITY
-// app.use(cors(require('./config/corsConfig')));
+app.use(cors(require('./config/corsConfig')));
 app.use(helmet());
 
 //RESPONSES COMPRESSION
@@ -30,14 +30,14 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 //WEBSOCKET INIT
-// const wss = new WebSocket.Server({server});
-// wss.on('connection', handleSocketConnection);
+const wss = new WebSocket.Server({server});
+wss.on('connection', handleSocketConnection);
 
 //HEALTH
 app.get('/',(req,res)=>res.status(200).send('API IS RUNNING HEALTHY'));
 
 //API ROUTES
-// app.use('/api',require('./routes'));
+app.use('/api',require('./routes'));
 
 //API LISTEN
 server.listen(PORT, () => {
