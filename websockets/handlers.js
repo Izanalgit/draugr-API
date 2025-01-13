@@ -6,6 +6,14 @@ const { msgErr } = require('../utils/errorsMsg');
 //WSS HANDLER
 function handleSocketConnection(ws, req) {
 
+    // Init connection as alive
+    ws.isAlive = true;
+
+    // Get pong , get alive
+    ws.on('pong', () => {
+        ws.isAlive = true;
+    });
+
     ws.on('message', async (data) => {
 
         try {
@@ -28,10 +36,10 @@ function handleSocketConnection(ws, req) {
             // Create connection
             if (!activeConnections.has(authToken)) {
                 activeConnections.set(authToken, ws);
-                console.log(`User registered: ${authToken}`);
+                console.log(`User registered: ${authToken}`); //CHIVATO
             }
 
-            // User select
+            // Recipient user select
             const recipientKey = authToken === session.authTokens.user1 
                 ? session.authTokens.user2 
                 : session.authTokens.user1;
@@ -52,7 +60,7 @@ function handleSocketConnection(ws, req) {
 
     //WSS CLOSE
     ws.on('close', () => {
-        console.log('Conexión cerrada');
+        console.log('Conexión cerrada'); //CHIVATO
 
         // Delete user from active connections
         for (const [authToken, socket] of activeConnections.entries()) {
@@ -63,5 +71,26 @@ function handleSocketConnection(ws, req) {
         }
     });
 }
+
+// Ping/Pong interval
+const interval = setInterval(() => {
+    activeConnections.forEach((ws, authToken) => {
+        if (ws.isAlive === false) {
+            console.log(`Terminating inactive connection: ${authToken}`); //CHIVATO
+            activeConnections.delete(authToken);
+            
+            return ws.terminate();
+        }
+
+        ws.isAlive = false;
+        ws.ping();
+    });
+}, 30000);
+
+// Ping/Pong signal termination
+process.on('SIGTERM', () => {
+    clearInterval(interval);
+    console.log('WebSocket server shutting down'); //CHIVATO
+});
 
 module.exports = { handleSocketConnection };
