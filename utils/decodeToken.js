@@ -1,8 +1,8 @@
-const {tokenSecret} = require('../config/tokens');
+const jwt = require('jsonwebtoken');
 
-function decodeToken(token) {
+function decodeToken(token,secret) {
     try {
-        const decoded = jwt.verify(token, tokenSecret);
+        const decoded = jwt.verify(token, secret);
         return decoded; 
     } catch (err) {
         throw new Error(`Token decoded failed`);
