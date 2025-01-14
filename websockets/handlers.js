@@ -1,6 +1,7 @@
 const activeConnections = require('./connections');
 const { getSession } = require('../services/sessionsServices');
-const { decodeToken } = require('../utils/decodeToken')
+const { decodeToken } = require('../utils/decodeToken');
+const { tokenSecret } = require('../config/tokens');
 const { msgErr } = require('../utils/errorsMsg');
 
 //WSS HANDLER
@@ -29,7 +30,7 @@ function handleSocketConnection(ws, req) {
                 throw new Error('Invalid AuthToken');
 
             // Check user UUID
-            const userUUID = decodeToken(authToken).user;
+            const userUUID = decodeToken(authToken, tokenSecret).user;
             if(!Object.values(session.authIDs).includes(userUUID))
                 throw new Error('Invalid user UUID');
 
