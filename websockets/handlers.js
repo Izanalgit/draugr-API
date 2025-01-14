@@ -1,11 +1,15 @@
 const activeConnections = require('./connections');
+const wsAuthMiddleware = require('../middleware/authWSCheck');
 const { getSession } = require('../services/sessionsServices');
 const { decodeToken } = require('../utils/decodeToken');
 const { tokenSecret } = require('../config/tokens');
 const { msgErr } = require('../utils/errorsMsg');
 
 //WSS HANDLER
-function handleSocketConnection(ws, req) {
+async function handleSocketConnection(ws, req) {
+    // Auth every single message
+    const isAuthenticated = await wsAuthMiddleware(ws, req);
+    if (!isAuthenticated) return;
 
     // Init connection as alive
     ws.isAlive = true;
