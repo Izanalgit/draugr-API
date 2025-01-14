@@ -15,9 +15,9 @@ const createSession = () => {
     const authUser2 = newId();
 
     // Token gen
-    const chatToken = genToken({chat: newId()},tokenConfig.expireTime);
-    const authTokenUser1 = genToken({user: authUser1},tokenConfig.expireTime);
-    const authTokenUser2 = genToken({user: authUser2},tokenConfig.expireTime);
+    const chatToken = genToken({chat: newId()},tokenConfig.tokenSecret,tokenConfig.expireTime);
+    const authTokenUser1 = genToken({user: authUser1},tokenConfig.tokenSecret,tokenConfig.expireTime);
+    const authTokenUser2 = genToken({user: authUser2},tokenConfig.tokenSecret,tokenConfig.expireTime);
 
     // Session obj gen
     const sessionData = {
