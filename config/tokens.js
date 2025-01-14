@@ -8,9 +8,13 @@ function createSecret(){
 }
 
 const tokenSecret = createSecret();
+const handShakeSecret = createSecret();
+const CSRFSecret = createSecret();
 
 const tokenConfig = {
     tokenSecret,
+    handShakeSecret,
+    CSRFSecret,
     expireTime: '1h',
 };
 
