@@ -1,5 +1,7 @@
 const activeConnections = require('./connections');
 const wsAuthMiddleware = require('../middleware/authWSCheck');
+const wsRateLimiter = require('../middleware/rateWSLimit');
+const rateLimits = require('../configs/rateLimits');
 const validateMessage = require('./validateMessage');
 const { sendAcceptedChat , sendEncryptedMessage } = require('./events');
 const { getSession } = require('../services/sessionsServices');
@@ -24,10 +26,22 @@ async function handleSocketConnection(ws, req) {
         try {
             const { chatToken, authToken, action, encryptedMessage } = JSON.parse(data);
 
+            // Check format
+            if (!chatToken || !authToken)
+                return ws.send(JSON.stringify({ error: 'Token inválido' }));
+
             const session = getSession(chatToken);
 
             // Check session and authToken
             validateMessage(session, authToken);
+
+            // Rate limit
+            if (!wsRateLimiter(
+                    authToken, 
+                    rateLimits.messages.limit, 
+                    rateLimits.messages.windowMs, 
+                    ws
+                )) return;
 
             // Create connection
             if (!activeConnections.has(authToken)) {
@@ -94,7 +108,7 @@ const interval = setInterval(() => {
         ws.isAlive = false;
         ws.ping();
     });
-}, 30000);
+}, 60000);
 
 // Ping/Pong signal termination
 process.on('SIGTERM', () => {
