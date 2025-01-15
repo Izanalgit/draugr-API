@@ -61,27 +61,27 @@ const createSession = () => {
 
 // Get session from sessionStore
 const getSession = (chatToken) => {
-  return sessionStore.get(chatToken) || null;
+    return sessionStore.get(chatToken) || null;
 };
 
 // Delete session
 const deleteSession = (chatToken) => {
-  sessionStore.delete(chatToken);
+    sessionStore.delete(chatToken);
 };
 
 // Clean expired sessions
 const cleanExpiredSessions = (expirationTime) => {
-  const now = Date.now();
-  for (const [chatToken, session] of sessionStore.entries()) {
-    if (now - session.createdAt > expirationTime) {
-      sessionStore.delete(chatToken);
+    const now = Date.now();
+
+    for (const [chatToken, session] of sessionStore.entries()) {
+        if (now - session.createdAt > expirationTime)
+            deleteSession(chatToken);
     }
-  }
 };
 
 module.exports = {
-  createSession,
-  getSession,
-  deleteSession,
-  cleanExpiredSessions,
+    createSession,
+    getSession,
+    deleteSession,
+    cleanExpiredSessions,
 };
