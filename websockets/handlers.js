@@ -1,5 +1,6 @@
 const activeConnections = require('./connections');
 const wsAuthMiddleware = require('../middleware/authWSCheck');
+const { sendAcceptedChat , sendEncryptedMessage } = require('./events');
 const { getSession } = require('../services/sessionsServices');
 const { decodeToken } = require('../utils/decodeToken');
 const { tokenSecret } = require('../config/tokens');
@@ -22,7 +23,7 @@ async function handleSocketConnection(ws, req) {
     ws.on('message', async (data) => {
 
         try {
-            const { chatToken, authToken, encryptedMessage } = JSON.parse(data);
+            const { chatToken, authToken, action, encryptedMessage } = JSON.parse(data);
 
             // Check chatToken
             const session = getSession(chatToken);
@@ -49,11 +50,24 @@ async function handleSocketConnection(ws, req) {
                 ? session.authTokens.user2 
                 : session.authTokens.user1;
 
-            // Sens message if recipient user is connected
+            // Check if recipient is connected
             const recipientWs = activeConnections.get(recipientKey);
             
-            if (recipientWs) 
-                recipientWs.send(JSON.stringify({ encryptedMessage }));
+            // WS Actions
+            if (recipientWs) {
+                console.log(`Message sent to ${recipientKey} by ${authToken}:`, action); //CHIVATO
+                switch (action) {
+                    case 'CHAT_ACCEPTED':
+                        sendAcceptedChat(authToken,recipientWs);
+                        break;
+                    case 'ENCRYPTED_MESSAGE':
+                        sendEncryptedMessage(authToken,recipientWs,encryptedMessage);
+                        break;
+                    default:
+                        ws.send(JSON.stringify({ error: 'Acción no reconocida' }));
+                        break;
+                }
+            }
             else
                 ws.send(JSON.stringify({ error: 'Contacto desconectado' }));
 
