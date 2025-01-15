@@ -93,13 +93,31 @@ const checkCSRFToken = async (csrfToken) => {
 }
 
 // Clean Handshake memory
-const cleanHSMemory = (hsToken) => {
-    toknesHandShake.delete(hsToken);
+const cleanHSMemory = () => {
+    const now = Date.now();
+
+    for (const [hsToken, data] of toknesHandShake.entries()) {
+
+        const decoded = decodeToken(hsToken, tokenConfig.handShakeSecret);
+        
+        if (decoded && decoded.exp * 1000 <= now)
+            toknesHandShake.delete(hsToken);
+    }
+    
 }
 
 // Clean CSRF memory
-const cleanCSRFMemory = (csrfToken) => {
-    toknesCSRF.delete(csrfToken);
+const cleanCSRFMemory = () => {
+    const now = Date.now();
+
+    for (const [csrfToken, data] of toknesCSRF.entries()) {
+
+        const decoded = decodeToken(csrfToken, tokenConfig.CSRFSecret);
+        
+        if (decoded && decoded.exp * 1000 <= now)
+            toknesCSRF.delete(csrfToken);
+    }
+    
 }
 
 module.exports = {
