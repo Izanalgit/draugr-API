@@ -5,8 +5,9 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const { startCleanupRoutines } = require('./routines/cleanup');
 
-const {handleSocketConnection} = require('./websockets/handlers');
+const { handleSocketConnection } = require('./websockets/handlers');
 
 require('dotenv').config();
 
@@ -42,4 +43,7 @@ app.use('/api',require('./routes'));
 //API LISTEN
 server.listen(PORT, () => {
     console.log(`Server on ${HOST}:${PORT}`);
+
+    //ROUTINES
+    startCleanupRoutines();
 })
