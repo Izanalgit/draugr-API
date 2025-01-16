@@ -70,8 +70,9 @@ const deleteSession = (chatToken) => {
 };
 
 // Clean expired sessions
-const cleanExpiredSessions = (expirationTime) => {
+const cleanExpiredSessions = () => {
     const now = Date.now();
+    const expirationTime = 60 * 60 * 1000; // 1h
 
     for (const [chatToken, session] of sessionStore.entries()) {
         if (now - session.createdAt > expirationTime)
