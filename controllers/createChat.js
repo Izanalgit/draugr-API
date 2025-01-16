@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
         res.json({
             message: 'Invitación enviada',
             chatToken: session.chatToken,
-            authToken: session.authTokens.user1,
+            userToken: session.authTokens.user1,
             keys: {
                 user: session.keys.privateKey,
                 contact: session.keys.publicKeyRecipient,
