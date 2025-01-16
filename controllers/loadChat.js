@@ -11,16 +11,16 @@ module.exports = (req,res) => {
 
     try {
         
-        const {chatToken} = res.body.payload
+        const {chatToken, userToken} = req.body.payload;
 
-        if (!chatToken) {
+        if (!chatToken || !userToken) {
             return res
                 .status(400)
                 .json({ error: msgErr.errPayloadIncorrect});
         }
         
         // Get session 
-        const {chatSession} = getSession(chatToken);
+        const chatSession = getSession(chatToken); // may have to deconstruct
 
         // Check session
         if (!chatSession) {
@@ -28,6 +28,14 @@ module.exports = (req,res) => {
             return res
                 .status(404)
                 .json({ error: 'Sesión de chat no encontrada'});
+        }
+
+        // Check userToken
+        if(userToken != chatSession.authTokens.user2) {
+            msgErr.errConsole('load chat','user token not equal')
+            return res
+                .status(404)
+                .json({ error: 'Token de usuario incorrecto'});
         }
             
         res
