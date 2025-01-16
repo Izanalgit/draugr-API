@@ -6,6 +6,10 @@ const authToken = require('../middleware/authCheck');
 const csrfTokenCheck = require('../middleware/csrfCheck');
 const ratesMiddleware = require('../middleware/rateLimit');
 const rateLimits = require('../config/rateLimits');
+const {validate} = require('../middleware/validations');
+
+//Validations
+const { acceptChatValidation } = require('../validations/acceptValidation');
 
 const router = express.Router();
 
@@ -14,6 +18,8 @@ router.post(
     ratesMiddleware('handshake',rateLimits.handshake), 
     authToken, 
     csrfTokenCheck,
+    acceptChatValidation,
+    validate,
     loadChat
 );
 
