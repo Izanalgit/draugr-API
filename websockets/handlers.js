@@ -1,7 +1,7 @@
 const activeConnections = require('./connections');
 const wsAuthMiddleware = require('../middleware/authWSCheck');
 const wsRateLimiter = require('../middleware/rateWSLimit');
-const rateLimits = require('../configs/rateLimits');
+const rateLimits = require('../config/rateLimits');
 const validateMessage = require('./validateMessage');
 const { sendAcceptedChat , sendEncryptedMessage } = require('./events');
 const { getSession } = require('../services/sessionsServices');
