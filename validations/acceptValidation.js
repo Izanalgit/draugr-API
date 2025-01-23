@@ -1,3 +1,5 @@
+const { body } = require('express-validator');
+
 // JWT format
 const tokenFormat = (value) => {
     if (!value.match(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)) {
