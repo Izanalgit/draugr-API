@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || 'http://localhost';
 
 //SECURITY
-app.use(cors(require('./config/corsConfig')));
+app.use(cors(require('./config/cors')));
 app.use(helmet());
 
 //RESPONSES COMPRESSION
