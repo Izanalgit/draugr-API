@@ -3,6 +3,6 @@ const handshake = require('../controllers/handshake');
 
 const router = express.Router();
 
-router.get('/connect', handshake);
+router.post('/connect', handshake);
 
 module.exports= router;
