@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { msgErr } = require('../utils/errorsMsg');
 
 const clientURL = process.env.CLIENT_URL;
 const apiURL = process.env.HOST;
@@ -9,8 +10,7 @@ if (!clientURL || !apiURL) {
 
 const allowedOrigins = [
     clientURL,       
-    apiURL,        
-    'http://localhost:5173' //Dev env        
+    apiURL,   
 ];
 
 module.exports = {
@@ -18,9 +18,11 @@ module.exports = {
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            console.error(`ERROR : Origin not allowed by CORS : ${origin}`);
+            msgErr.errConsole('CORS', `Origin not allowed : ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
+    methods: "POST",
+    allowedHeaders: ["Content-Type", "Authorization"],
     exposedHeaders: ['Authorization']
 };
