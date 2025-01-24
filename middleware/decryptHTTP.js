@@ -8,17 +8,21 @@ const decryptMiddleware = (req, res, next) => {
 
     try {
         // Json body inside encrypted layer
-        const encryptedData = req.body.encryptedData;
-        if (!encryptedData) {
+        const encrypted = req.body.encryptedData;
+        if (!encrypted) {
             return res.status(400).json({ error: 'Datos cifrados no encontrados' });
         }
 
-        const decryptedData = crypto.privateDecrypt(
-            privateKey,
-            Buffer.from(encryptedData, 'base64') // crypt data on base64 !!
-        );
+        const { encryptedData, encryptedKey, iv } = encrypted;
+
+        const aesKey = crypto.privateDecrypt(privateKey, Buffer.from(encryptedKey, 'base64'));
+
+        const decipher = crypto.createDecipheriv('aes-256-cbc', aesKey, Buffer.from(iv, 'base64'));
+        let decryptedData = decipher.update(Buffer.from(encryptedData, 'base64'));
+        decryptedData = Buffer.concat([decryptedData, decipher.final()]);
 
         req.body = JSON.parse(decryptedData.toString('utf8'));
+        console.log(req.body)
         next();
 
     } catch (err) {
