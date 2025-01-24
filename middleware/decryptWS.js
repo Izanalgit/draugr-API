@@ -4,13 +4,12 @@ const { msgErr } = require('../utils/errorsMsg');
 const wsDecryptMiddleware = (socket, next) => {
     const { PRIVATE_KEY } = process.env;
 
+    const privateKey = PRIVATE_KEY.split(String.raw`\n`).join('\n');
+
     socket.on('message', (encryptedMessage) => {
         try {
             const decryptedMessage = crypto.privateDecrypt(
-                {
-                    key: PRIVATE_KEY,
-                    padding: crypto.constants.RSA_PKCS1_PADDING,
-                },
+                privateKey,
                 Buffer.from(encryptedMessage, 'base64')
             );
 
