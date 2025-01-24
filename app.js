@@ -26,8 +26,8 @@ app.use(helmet());
 app.use(compression());
 
 //JSON PARSER
-// app.use(express.urlencoded({extended:true}));
-// app.use(express.json());
+app.use(express.urlencoded({extended:true}));
+app.use(express.json());
 
 //LOGGER
 app.use(morgan('dev'));
