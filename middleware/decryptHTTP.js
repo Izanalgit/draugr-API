@@ -3,6 +3,8 @@ const { msgErr } = require('../utils/errorsMsg');
 
 const decryptMiddleware = (req, res, next) => {
     const { PRIVATE_KEY } = process.env;
+    
+    const privateKey = PRIVATE_KEY.split(String.raw`\n`).join('\n');
 
     try {
         // Json body inside encrypted layer
@@ -12,10 +14,7 @@ const decryptMiddleware = (req, res, next) => {
         }
 
         const decryptedData = crypto.privateDecrypt(
-            {
-                key: PRIVATE_KEY,
-                padding: crypto.constants.RSA_PKCS1_PADDING,
-            },
+            privateKey,
             Buffer.from(encryptedData, 'base64') // crypt data on base64 !!
         );
 
