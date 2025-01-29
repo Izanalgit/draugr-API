@@ -56,6 +56,7 @@ const createSession = () => {
             privateKey: sessionData.keys.user1.privateKey,
             publicKeyRecipient: sessionData.keys.user2.publicKey,
         },
+        createdAt:sessionData.createdAt,
     };
 };
 
