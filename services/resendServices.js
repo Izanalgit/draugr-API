@@ -11,11 +11,11 @@ async function sendInvitationEmail(sender, email, chatToken, userToken, message)
             <h1>¡Hola!</h1>
             <p>${message ? message : 'Te invito a tener un chat privado.'}</p>
             <p>Haz clic en el siguiente enlace para unirte al chat:</p>
-            <a href="${process.env.CLIENT_URL}/${chatToken}/${userToken}">CHAT</a>
+            <a href="${process.env.CLIENT_URL}/response?chatToken=${encodeURIComponent(chatToken)}&userToken=${encodeURIComponent(userToken)}">CHAT</a>
         `,
         });
 
-        console.log('Email sended : ', response);
+        console.log('Email sended : ', response); //CHIVATO
         return response;
     } catch (error) {
         msgErr.errConsole('send invite email',error)
