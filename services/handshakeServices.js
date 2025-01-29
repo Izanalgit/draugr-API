@@ -98,7 +98,7 @@ const cleanHSMemory = () => {
 
     for (const [hsToken, data] of toknesHandShake.entries()) {
 
-        const decoded = decodeToken(hsToken, tokenConfig.handShakeSecret);
+        const decoded = decodeToken(hsToken, tokenConfig.handShakeSecret, true);
         
         if (decoded && decoded.exp * 1000 <= now)
             toknesHandShake.delete(hsToken);
@@ -112,7 +112,7 @@ const cleanCSRFMemory = () => {
 
     for (const [csrfToken, data] of toknesCSRF.entries()) {
 
-        const decoded = decodeToken(csrfToken, tokenConfig.CSRFSecret);
+        const decoded = decodeToken(csrfToken, tokenConfig.CSRFSecret, true);
         
         if (decoded && decoded.exp * 1000 <= now)
             toknesCSRF.delete(csrfToken);
