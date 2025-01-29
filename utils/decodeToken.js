@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-function decodeToken(token,secret) {
+function decodeToken(token,secret,ignoreExpired=false) {
     try {
         const decoded = jwt.verify(token, secret);
 
@@ -16,13 +16,16 @@ function decodeToken(token,secret) {
         if (err.name === 'JsonWebTokenError')
             throw new Error(`JWT Error: ${err.message}`);
 
-        else if (err.name === 'TokenExpiredError')
-            throw new Error(`Token expired at: ${err.expiredAt}`);
+        if (err.name === 'TokenExpiredError') {
+            if (ignoreExpired)
+                return jwt.decode(token);
 
-        else 
-            throw new Error(`Token decode failed: ${err.message}`);
+            throw new Error(`Token expired at: ${err.expiredAt}`);
+        }
+
+        throw new Error(`Token decode failed: ${err.message}`);
 
     }
 }
 
-module.exports = {decodeToken};
+module.exports = {decodeToken };
