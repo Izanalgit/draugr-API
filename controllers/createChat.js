@@ -35,6 +35,7 @@ module.exports = async (req, res) => {
                 user: session.keys.privateKey,
                 contact: session.keys.publicKeyRecipient,
             },
+            sessionTime:session.createdAt,
         });
 
     } catch (error) {

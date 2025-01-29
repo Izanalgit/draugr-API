@@ -45,7 +45,8 @@ module.exports = (req,res) => {
                 keys:{
                     user: chatSession.keys.user2.privateKey,
                     contact: chatSession.keys.user1.publicKey,
-                }
+                },
+                sessionTime:chatSession.createdAt,
             })
 
     } catch (error) {
