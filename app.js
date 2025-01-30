@@ -7,7 +7,6 @@ const helmet = require('helmet');
 const compression = require('compression');
 const { startCleanupRoutines } = require('./routines/cleanup');
 const { decryptMiddleware } = require('./middleware/decryptHTTP');
-const { wsDecryptMiddleware } = require('./middleware/decryptWS');
 
 const { handleSocketConnection } = require('./websockets/handlers');
 
@@ -34,11 +33,7 @@ app.use(morgan('dev'));
 
 //WEBSOCKET INIT
 const wss = new WebSocket.Server({server});
-wss.on('connection', (ws, req) => {
-    wsDecryptMiddleware(ws, () => {
-        handleSocketConnection(ws, req);
-    });
-});
+wss.on('connection', handleSocketConnection);
 
 //HEALTH
 app.get('/',(req,res)=>res.status(200).send('API IS RUNNING HEALTHY'));
