@@ -1,5 +1,6 @@
 const activeConnections = require('./connections');
 const wsAuthMiddleware = require('../middleware/authWSCheck');
+const { wsDecryptMiddleware } = require('../middleware/decryptWS')
 const wsRateLimiter = require('../middleware/rateWSLimit');
 const rateLimits = require('../config/rateLimits');
 const validateMessage = require('./validateMessage');
@@ -10,8 +11,8 @@ const { msgErr } = require('../utils/errorsMsg');
 //WSS HANDLER
 async function handleSocketConnection(ws, req) {
     // Auth every single message
-    const isAuthenticated = await wsAuthMiddleware(ws, req);
-    if (!isAuthenticated) return;
+    // const isAuthenticated = await wsAuthMiddleware(ws, req);
+    // if (!isAuthenticated) return;
 
     // Init connection as alive
     ws.isAlive = true;
@@ -21,16 +22,19 @@ async function handleSocketConnection(ws, req) {
         ws.isAlive = true;
     });
 
-    ws.on('message', async (data) => {
-
+    wsDecryptMiddleware(ws, async (data, socket) => {
+        console.log('WS MESSAGE HANDLER')//CHIVATO
         try {
             const { chatToken, authToken, action, encryptedMessage } = JSON.parse(data);
+            console.log('---action--- : ',action)//CHIVATO
 
             // Check format
             if (!chatToken || !authToken)
-                return ws.send(JSON.stringify({ error: 'Token inválido' }));
+                return socket.send(JSON.stringify({ error: 'Token inválido' }));
 
             const session = getSession(chatToken);
+            if (!session) 
+                throw new Error('Session not found');
 
             // Check session and authToken
             validateMessage(session, authToken);
@@ -40,12 +44,12 @@ async function handleSocketConnection(ws, req) {
                     authToken, 
                     rateLimits.messages.limit, 
                     rateLimits.messages.windowMs, 
-                    ws
+                    socket
                 )) return;
 
             // Create connection
             if (!activeConnections.has(authToken)) {
-                activeConnections.set(authToken, ws);
+                activeConnections.set(authToken, socket);
                 console.log(`User registered: ${authToken}`); //CHIVATO
             }
 
@@ -68,16 +72,16 @@ async function handleSocketConnection(ws, req) {
                         sendEncryptedMessage(authToken,recipientWs,encryptedMessage);
                         break;
                     default:
-                        ws.send(JSON.stringify({ error: 'Acción no reconocida' }));
+                        socket.send(JSON.stringify({ error: 'Acción no reconocida' }));
                         break;
                 }
             }
             else
-                ws.send(JSON.stringify({ error: 'Contacto desconectado' }));
+                socket.send(JSON.stringify({ error: 'Contacto desconectado' }));
 
         } catch (error) {
             msgErr.errConsole('process message chat',error.message)
-            ws.send(JSON.stringify({ error: 'Error procesando mensaje' }));
+            socket.send(JSON.stringify({ error: 'Error procesando mensaje' }));
         }
     });
 
