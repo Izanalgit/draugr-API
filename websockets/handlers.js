@@ -4,15 +4,14 @@ const { wsDecryptMiddleware } = require('../middleware/decryptWS')
 const wsRateLimiter = require('../middleware/rateWSLimit');
 const rateLimits = require('../config/rateLimits');
 const validateMessage = require('./validateMessage');
-const { sendAcceptedChat , sendEncryptedMessage } = require('./events');
-const { getSession } = require('../services/sessionsServices');
+const { sendAcceptedChat , sendEncryptedMessage , sendDisconnectMessage } = require('./events');
+const { getSession , getSessionByAuth} = require('../services/sessionsServices');
 const { msgErr } = require('../utils/errorsMsg');
 
 //WSS HANDLER
 async function handleSocketConnection(ws, req) {
-    // Auth every single message
-    // const isAuthenticated = await wsAuthMiddleware(ws, req);
-    // if (!isAuthenticated) return;
+    
+    const urlWS = req.url;
 
     // Init connection as alive
     ws.isAlive = true;
@@ -24,6 +23,12 @@ async function handleSocketConnection(ws, req) {
 
     wsDecryptMiddleware(ws, async (data, socket) => {
         console.log('WS MESSAGE HANDLER')//CHIVATO
+
+        // Auth messages
+        const isAuthenticated = await wsAuthMiddleware(urlWS);
+        if (!isAuthenticated)
+            ws.close(4002, 'Token de autenticación inválido');
+
         try {
             const { chatToken, authToken, action, encryptedMessage } = JSON.parse(data);
             console.log('---action--- : ',action)//CHIVATO
@@ -63,7 +68,7 @@ async function handleSocketConnection(ws, req) {
             
             // WS Actions
             if (recipientWs) {
-                console.log(`Message sent to ${recipientKey} by ${authToken}:`, action); //CHIVATO
+                console.log(`Message sent :`, action); //CHIVATO
                 switch (action) {
                     case 'CHAT_ACCEPTED':
                         sendAcceptedChat(authToken,recipientWs);
@@ -87,15 +92,45 @@ async function handleSocketConnection(ws, req) {
 
     //WSS CLOSE
     ws.on('close', () => {
-        console.log('Conexión cerrada'); //CHIVATO
+        console.log('Connection closed'); //CHIVATO
 
-        // Delete user from active connections
+        let disconnectdAuthToken = null;
+
+        // Get disconnect user from active connections
         for (const [authToken, socket] of activeConnections.entries()) {
             if (socket === ws) {
-                activeConnections.delete(authToken);
+                disconnectdAuthToken = authToken;
                 break;
             }
         }
+
+        if (!disconnectdAuthToken) return;
+
+        // Advice contact and delete connection
+        const session = getSessionByAuth(disconnectdAuthToken);
+
+        if(session){
+            const recipientKey = disconnectdAuthToken === session.authTokens.user1
+                ? session.authTokens.user2
+                : session.authTokens.user1;
+        
+            const recipientWs = activeConnections.get(recipientKey);
+            
+            if(recipientWs){
+                sendDisconnectMessage(disconnectdAuthToken,recipientWs);
+            
+                setTimeout(() => {
+                    activeConnections.delete(recipientKey);
+                    recipientWs.terminate();
+                    console.log(`Connection terminated for user recipient`);//CHIVATO
+                }, 100);
+            }
+        }
+
+        //Disconnect user
+        activeConnections.delete(disconnectdAuthToken);
+        console.log(`Connection terminated for user disconnected`);//CHIVATO
+
     });
 }
 
