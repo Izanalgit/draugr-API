@@ -22,7 +22,7 @@ const decryptMiddleware = (req, res, next) => {
         decryptedData = Buffer.concat([decryptedData, decipher.final()]);
 
         req.body = JSON.parse(decryptedData.toString('utf8'));
-        console.log(req.body)//CHIVATO
+
         next();
 
     } catch (err) {
