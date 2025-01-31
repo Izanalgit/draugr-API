@@ -17,7 +17,6 @@ const wsDecryptMiddleware = (socket, handler) => {
             decryptedMessage = Buffer.concat([decryptedMessage, decipher.final()]);
 
             const message = JSON.parse(decryptedMessage.toString('utf8'));
-            console.log(message)//CHIVATO
 
             handler(message, socket);
             
