@@ -65,6 +65,16 @@ const getSession = (chatToken) => {
     return sessionStore.get(chatToken) || null;
 };
 
+// Get session from sessionStore by authToken
+const getSessionByAuth = (authToken) => {
+    for (const session of sessionStore.values()) {
+        if (session.authTokens.user1 === authToken || session.authTokens.user2 === authToken) {
+            return session;
+        }
+    }
+    return null;
+};
+
 // Delete session
 const deleteSession = (chatToken) => {
     sessionStore.delete(chatToken);
@@ -84,6 +94,7 @@ const cleanExpiredSessions = () => {
 module.exports = {
     createSession,
     getSession,
+    getSessionByAuth,
     deleteSession,
     cleanExpiredSessions,
 };
