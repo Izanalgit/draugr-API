@@ -15,9 +15,18 @@ function sendEncryptedMessage(sender, recipientWS, encryptedMessage) {
     }));
 }
 
+//Send disconnected message
+function sendDisconnectMessage(sender, recipientWS) {
+    recipientWS.send(JSON.stringify({
+        type: 'CONTACT_DISCONNECTED',
+        from: sender,
+    }));
+}
+
 
 
 module.exports = {
     sendAcceptedChat,
     sendEncryptedMessage,
+    sendDisconnectMessage,
 };
