@@ -1,18 +1,20 @@
+const url = require('node:url');
 const { checkHSToken } = require('../services/handshakeServices');
 const { msgErr } = require('../utils/errorsMsg');
 
-async function wsAuthMiddleware(ws, req, next) {
+async function wsAuthMiddleware(urlWS) {
     try {
-        const token = req.headers['authorization'];
+        const query = url.parse(urlWS, true).query;
+        const token = query.authorization;
 
         if (!token) {
-            ws.close(4001, 'Token de autenticación no proporcionado');
+            msgErr.errConsole('authToken WS middleware:', 'handshake token missing');
             return false;
         }
 
         const tokenCheck = await checkHSToken(token);
         if (!tokenCheck) {
-            ws.close(4002, 'Token de autenticación inválido');
+            msgErr.errConsole('authToken WS middleware:', 'invalid handshake token');
             return false;
         }
 
@@ -20,7 +22,6 @@ async function wsAuthMiddleware(ws, req, next) {
 
     } catch (error) {
         msgErr.errConsole('authToken WS middleware:', error.message);
-        ws.close(1011, 'Error interno del servidor');
         return false;
     }
 }
