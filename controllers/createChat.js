@@ -1,5 +1,5 @@
 const { createSession} = require('../services/sessionsServices');
-const {sendInvitationEmail} = require('../services/resendServices');
+const {sendInvitationEmail} = require('../services/mailServices');
 const {msgErr} = require('../utils/errorsMsg');
 
 module.exports = async (req, res) => {
@@ -24,19 +24,26 @@ module.exports = async (req, res) => {
         // Create session on memory
         const session = createSession();
 
-        // Send mail by Resend
+        // Send mail by Sendrgid
         await sendInvitationEmail(sender,emailRecipient,session.chatToken,session.authTokens.user2,message);
 
-        res.json({
-            message: 'Invitación enviada',
-            chatToken: session.chatToken,
-            userToken: session.authTokens.user1,
-            keys: {
-                user: session.keys.privateKey,
-                contact: session.keys.publicKeyRecipient,
-            },
-            sessionTime:session.createdAt,
-        });
+        if(sendInvitationEmail)
+            res
+            .status(200)
+            .json({
+                message: 'Invitación enviada',
+                chatToken: session.chatToken,
+                userToken: session.authTokens.user1,
+                keys: {
+                    user: session.keys.privateKey,
+                    contact: session.keys.publicKeyRecipient,
+                },
+                sessionTime:session.createdAt,
+            });
+        else 
+            res
+                .status(500)
+                .json({ error: msgErr.errGeneral('sending invitation mail') });
 
     } catch (error) {
         msgErr.errConsole('create chat',error)
